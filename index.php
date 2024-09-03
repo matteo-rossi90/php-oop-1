@@ -10,57 +10,18 @@
 // Bonus 1:
 // Modificare la classe Movie in modo che accetti piú di un genere.
 
-//dichiarare la classe Movie e le variabili d'istanza
-class Movie
-{
-    //variabili d'istanza
-    public $title;
-    public $cast = [];
-    public $duration;
-    public $director;
-    public $genre = [];
+// Bonus 2:
+// Creare un layout completo per stampare a schermo una lista di movies.
+// Facciamo attenzione all’organizzazione del codice, suddividendolo in appositi file e cartelle. 
+// Possiamo ad esempio organizzare il codice
+// - creando un file dedicato ai dati (tipo le array di oggetti) che potremmo chiamare db.php
+// - mettendo ciascuna classe nel proprio file e magari raggruppare tutte le classi in una cartella dedicata che possiamo chiamare Models/
+// - organizzando il layout dividendo la struttura ed i contenuti in file e parziali dedicati.
 
-    //definire il costruttore di Movie
-    function __construct($_title, $_cast, $_duration, $_director, $_genre)
-    {
-        $this->title = $_title;
-        $this->cast = $_cast;
-        $this->duration = $_duration;
-        $this->director = $_director;
-        $this->genre = $_genre;
-    }
-
-    //definire un metodo per aggiungere un nuovo attore del cast
-    public function addActor(...$actors){
-        foreach ($actors as $actor) {
-            $this->cast[] = $actor;
-        }
-    }
-
-    //definire un metodo per convertire la durata in ore e minuti
-    public function getFormatDuration()
-    {
-        $hours = floor($this->duration); // ore
-        $minutes = ($this->duration - $hours) * 60; // minuti
-        return "{$hours} ore e " . round($minutes) . " minuti";
-    }
-
-    //definire un metodo per aggiungere più di un genere
-    public function addGenre(...$genres){
-        foreach ($genres as $genere) {
-            $this->genre[] = $genere;
-        }
-    }
-}
-
-//dichiarare le istanze della classe
-$ring = new Movie("Il Signore degli Anelli - Compagnia dell'Anello", ['Elijah Wood', 'Ian McKellen', 'Orlando Bloom', 'Cate Blanchett'], 2.9, 'Peter Jackson', ['Fantasy']);
-$ring->addActor('Viggo Mortensen', 'Liv Tyler');
-$ring->addGenre('Avventura' , 'Azione' );
-
-$potter = new Movie("Harry Potter e il Principe Mezzosangue", ['Daniel Radcliff', 'Emma Watson', 'Rupert Grint', 'Maggie Smith'], 3.0, 'David Yates', ['Fantasy']);
-$potter->addActor('Bonnie Wright', 'Matthew Lewis');
-$potter->addGenre('Azione', 'Romantico');
+require_once __DIR__ . '/Model/Movie.php';
+require_once __DIR__ . '/Model/Cast.php';
+require_once __DIR__ . '/Model/Genre.php';
+require_once __DIR__ . '/data/db.php';
 
 ?>
 
@@ -70,56 +31,86 @@ $potter->addGenre('Azione', 'Romantico');
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!-- foglio di stile -->
+    <link rel="stylesheet" href="./css/style.css">
     <title>OOP - Movies</title>
 </head>
 
 <body>
+    <header id="navbar">
+        <div class="container py-2 d-flex justify-content-between align-items-center">
+            <h2 class="white-text">Noleggio Film</h2>
 
-    <h3><?php echo $ring->title; ?></h3>
-    <h3>Attori:</h3>
-    <ul>
-        <!-- estrarre gli attori del cast -->
-        <?php foreach ($ring->cast as $attore): ?>
-            <li>
-                <!-- stampare gli attori in una lista -->
-                <?php echo $attore ?>
-            </li>
-        <?php endforeach; ?>
-    </ul>
-    <h4>Durata: <?php echo $ring->getFormatDuration(); ?></h4>
-    <h4>Regista: <?php echo $ring->director; ?></h4>
-    <ul>
-        <!-- estrarre i generi del cast -->
-        <?php foreach ($ring->genre as $genere): ?>
-            <li>
-                <!-- stampare gli attori in una lista -->
-                <?php echo $genere ?>
-            </li>
-        <?php endforeach; ?>
-    </ul>
+            <ul class="navlist d-flex align-items-center white-text spacing">
+                <li>
+                    <a href="#">Chi siamo</a>
+                </li>
+                <li>
+                    <a href="#">Prezzi</a>
+                </li>
+                <li>
+                    <a href="#">Informazioni</a>
+                </li>
+            </ul>
 
-    <h3><?php echo $potter->title; ?></h3>
-    <h3>Attori:</h3>
-    <ul>
-        <!-- estrarre gli attori del cast -->
-        <?php foreach ($potter->cast as $attore): ?>
-            <li>
-                <!-- stampare gli attori in una lista -->
-                <?php echo $attore ?>
-            </li>
-        <?php endforeach; ?>
-    </ul>
-    <h4>Durata: <?php echo $potter->getFormatDuration(); ?></h4>
-    <h4>Regista: <?php echo $potter->director; ?></h4>
-    <ul>
-        <!-- estrarre i generi del cast -->
-        <?php foreach ($potter->genre as $genere): ?>
-            <li>
-                <!-- stampare gli attori in una lista -->
-                <?php echo $genere ?>
-            </li>
-        <?php endforeach; ?>
-    </ul>
+        </div>
+    </header>
+
+    <div class="container spacing-container">
+
+        <div class="row g-3 py-4">
+
+            <?php foreach ($db as $movie): ?>
+                <div class="col-12 col-sm-12 col-md-6 col-lg-4">
+                    <div class="card card-box shadow-sm h-100">
+                        <img src="./img/<?php echo $movie->image ?>" class="card-img-top p-4" alt="...">
+                        <div class="card-body p-4">
+                            <h4 class="card-title text-center py-2">
+                                <?php echo $movie->title; ?>
+                            </h4>
+                            <div class="d-flex justify-content-between spacing">
+                                <div class="col py-2">
+                                    <h5 class="text-center">Attori principali</h5>
+                                    <ul class="text-center">
+                                        <?php foreach ($movie->cast->getFullActorNames() as $actor): ?>
+                                            <li>
+                                                <?php echo $actor; ?>
+                                            </li>
+                                        <?php endforeach; ?>
+                                    </ul>
+
+                                </div>
+
+                                <div class="col py-2">
+                                    <h5 class="text-center">Genere</h5>
+                                    <ul class="text-center">
+                                        <?php foreach ($movie->genre->getFullGenres() as $genere): ?>
+                                            <li>
+                                                <?php echo $genere; ?>
+                                            </li>
+                                        <?php endforeach; ?>
+                                    </ul>
+
+                                </div>
+
+
+                            </div>
+                            <h5 class="py-2">Durata: <?php echo $movie->getFormatDuration(); ?></h5>
+                            <h5 class="py-2">Regista: <?php echo $movie->director; ?></h5>
+                            <div class="btn-container d-flex justify-content-center align-items-center py-3">
+                                <a href="#" class="btn-info">Altre informazioni</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+
+        </div>
+
+    </div>
 
 </body>
 
